@@ -1,0 +1,14 @@
+image =>> scan all
+one by one 
+
+read prompt 
+
+
+compile all prompts 
+
+get output whats happenng
+
+2 fps
+
+5s => 10 images 
+

@@ -1,13 +1,29 @@
-# import os
-# os.environ["HF_HOME"] = "G:/01 Huggingface"
-# os.environ["TRANSFORMERS_CACHE"] = "G:/01 Huggingface"
-# os.environ["HF_HUB_CACHE"] = "G:/01 Huggingface"
+from transformers import AutoProcessor, AutoModelForCausalLM
+import torch
+from PIL import Image
+import requests
+from io import BytesIO
 
-from lmdeploy import pipeline, TurbomindEngineConfig, ChatTemplateConfig
-from lmdeploy.vl import load_image
+# Download the image
+url = "https://raw.githubusercontent.com/open-mmlab/mmdeploy/main/tests/data/tiger.jpeg"
+image = Image.open(BytesIO(requests.get(url).content))
 
-model = 'OpenGVLab/InternVL3-1B'
-image = load_image('https://raw.githubusercontent.com/open-mmlab/mmdeploy/main/tests/data/tiger.jpeg')
-pipe = pipeline(model, backend_config=TurbomindEngineConfig(session_len=16384, tp=1), chat_template_config=ChatTemplateConfig(model_name='internvl2_5'))
-response = pipe(('describe this image', image))
-print(response.text)
+# Load model and processor
+processor = AutoProcessor.from_pretrained("OpenGVLab/InternVL3-1B")
+model = AutoModelForCausalLM.from_pretrained("OpenGVLab/InternVL3-1B", torch_dtype=torch.float16, device_map="auto")
+
+# Process the image and generate text
+prompt = "Describe this image in detail."
+inputs = processor(text=prompt, images=image, return_tensors="pt").to(model.device)
+
+# Generate
+with torch.no_grad():
+    output = model.generate(
+        **inputs,
+        max_new_tokens=100,
+        do_sample=False
+    )
+
+# Print output
+generated_text = processor.decode(output[0], skip_special_tokens=True)
+print(generated_text)
