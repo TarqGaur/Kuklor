@@ -1,14 +1,6 @@
-image =>> scan all
-one by one 
+Vit_model - Accurate object detection- single words
 
-read prompt 
+Salesforce/blip2-opt-2.7b - LOW latency low quality
 
-
-compile all prompts 
-
-get output whats happenng
-
-2 fps
-
-5s => 10 images 
+vit-gpt2-coco-en - Low Latency - High Quality       Final
 
