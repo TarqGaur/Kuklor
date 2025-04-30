@@ -4,3 +4,31 @@ Salesforce/blip2-opt-2.7b - LOW latency low quality
 
 vit-gpt2-coco-en - Low Latency - High Quality       Final
 
+
+
+Plans ----------
+
+prepare gemini prompt
+
+tail wggle check
+
+dog voice 
+
+
+
+Combine all 3
+Cook
+
+Prepare hardware
+
+Cook
+Cook
+
+make app 
+
+Cook
+
+
+Test Test Test
+
+Kuklor will be ready

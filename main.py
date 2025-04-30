@@ -91,62 +91,26 @@
 
 # salesforce 
 
-
-
-
-import cv2
-import time
+import requests
 from PIL import Image
 from transformers import BlipProcessor, BlipForConditionalGeneration
 
-# Load BLIP model and processor
 processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-base")
 model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-base")
 
-# Open webcam
-cap = cv2.VideoCapture(0)
-if not cap.isOpened():
-    print("Error: Cannot access webcam.")
-    exit()
+img_url = 'http://192.168.1.14:8080/shot.jpg'
+raw_image = Image.open(requests.get(img_url, stream=True).raw).convert('RGB')
 
-frame_interval_seconds = 1
-frame_idx = 0
+# conditional image captioning
+text = "a photography of"
+inputs = processor(raw_image, text, return_tensors="pt")
 
-print("Starting webcam capture and captioning with BLIP...")
+out = model.generate(**inputs)
+print(processor.decode(out[0], skip_special_tokens=True))
+# >>> a photography of a woman and her dog
 
-try:
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            print("Failed to grab frame.")
-            break
+# unconditional image captioning
+inputs = processor(raw_image, return_tensors="pt")
 
-        # Convert OpenCV BGR frame to PIL RGB image
-        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        pil_image = Image.fromarray(frame_rgb)
-
-        try:
-            # Generate caption (unconditional)
-            inputs = processor(pil_image, return_tensors="pt")
-            out = model.generate(**inputs)
-            caption = processor.decode(out[0], skip_special_tokens=True)
-
-            print(f"Frame {frame_idx}: {caption}")
-
-            # Save caption
-            with open("captions_blip.txt", "a") as f:
-                f.write(f"Frame {frame_idx}: {caption}\n")
-
-        except Exception as e:
-            print(f"Error processing frame {frame_idx}: {e}")
-
-        frame_idx += 1
-        time.sleep(frame_interval_seconds)  # Wait 1 second
-
-except KeyboardInterrupt:
-    print("Stopped by user.")
-
-finally:
-    cap.release()
-    cv2.destroyAllWindows()
-    print("Webcam released.")
+out = model.generate(**inputs)
+print(processor.decode(out[0], skip_special_tokens=True))
